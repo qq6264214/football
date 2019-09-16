@@ -1,0 +1,19 @@
+server:
+  port: 8085
+  tomcat:
+    uri-encoding: utf-8
+spring:
+  http:
+   encoding:
+     force: true
+     enabled: true
+     charset: UTF-8
+  datasource:
+    url: jdbc:mysql://localhost:3306/sports?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
