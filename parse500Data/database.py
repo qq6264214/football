@@ -76,3 +76,7 @@ def updatePankou(database,result):
         return
     database.execManyNonQuery(sql,result)
 
+def queryCount(database,sql):
+    list = database.execQuery(sql)
+
+    return list[0][0]
