@@ -80,3 +80,11 @@ def queryCount(database,sql):
     list = database.execQuery(sql)
 
     return list[0][0]
+
+def insertCondition(database,condition):
+    sql = 'INSERT IGNORE INTO `condition` (`pankou`, `condition`,`type`, `total_count`, `count`,' \
+          '`percent`) VALUES (%s,%s,%s,%s,%s,%s)'
+    if condition == None or len(condition) == 0:
+        return
+
+    database.execManyNonQuery(sql,condition)
