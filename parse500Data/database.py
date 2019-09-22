@@ -82,9 +82,56 @@ def queryCount(database,sql):
     return list[0][0]
 
 def insertCondition(database,condition):
-    sql = 'INSERT IGNORE INTO `condition` (`pankou`, `condition`,`type`, `total_count`, `count`,' \
-          '`percent`) VALUES (%s,%s,%s,%s,%s,%s)'
+    sql = 'INSERT IGNORE INTO `condition_copy` (`pankou`,`linchangpankou`, `condition`,`type`, `total_count`, `count`,' \
+          '`percent`,`model`,`col_name`,`col_val`) VALUES (%s,%s,%s,%s,%s,%s,%s,1,%s,%s)'
     if condition == None or len(condition) == 0:
         return
 
     database.execManyNonQuery(sql,condition)
+
+def queryNeedUpadteRealTime(database,today,yestoday):
+    sql = 'SELECT bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE bisaishijian<=%s AND bisaishijian>= %s AND real_time is NULL AND add_real_time<2'
+    return database.execQuery(sql, (today,yestoday))
+
+def updateRealTime(database,result):
+    sql = 'UPDATE forecast_data SET real_time=%s WHERE bisaishijian=%s AND bisaileixing=%s AND zhudui=%s AND kedui=%s'
+    database.execManyNonQuery(sql, result)
+def updateAddRealTimeFlag(database,result):
+    sql = 'UPDATE forecast_data SET add_real_time=1+add_real_time WHERE  bisaileixing=%s AND bisaishijian=%s  AND zhudui=%s AND kedui=%s'
+    database.execManyNonQuery(sql, result)
+
+def queryNeedUpdateLinchang(database,startTime,endTime):
+    sql = 'SELECT bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE real_time IS NOT NULL AND linchangpankou IS NULL AND real_time>=%s AND real_time<=%s AND add_linchangpankou<2'
+    return database.execQuery(sql,(startTime,endTime))
+
+def updateLinchang(database,result):
+    sql = 'UPDATE forecast_data SET linchangpankou=%s WHERE bisaishijian=%s AND bisaileixing=%s AND zhudui=%s AND kedui=%s'
+    database.execManyNonQuery(sql, result)
+def updateAddLinchangFlag(database,result):
+    sql = 'UPDATE forecast_data SET add_linchangpankou=1+add_linchangpankou WHERE  bisaileixing=%s AND bisaishijian=%s  AND zhudui=%s AND kedui=%s'
+    database.execManyNonQuery(sql, result)
+
+def queryNotFirstAna(database):
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null'
+    return database.execQuery(sql)
+
+def queryColNameAndValByPankou(database,pankou,linchangpankou):
+    sql = 'SELECT col_name,col_val,`condition` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition` ORDER BY col_name,col_val,`condition`'
+    return database.execQuery(sql,(pankou,linchangpankou))
+
+def queryVals(database,sqlCols,result):
+    sql = 'SELECT ' + sqlCols +' FROM football_data WHERE bisaileixing=%s AND bisaishijian=%s  AND zhudui=%s AND kedui=%s'
+    return database.execQuery(sql,result)
+
+def updatePrediction(database,params):
+    sql = 'UPDATE  forecast_data SET shengmax=%s,shengmin=%s,pingmax=%s,pingmin=%s,fumax=%s,fumin=%s,shangmax=%s,shangmin=%s,xiamax=%s,xiamin=%s,start_analysis=1 WHERE id=%s'
+    database.execNonQuery(sql,params)
+
+
+def queryNotLinchangAna(database):
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui,linchangpankou FROM forecast_data WHERE correct_analysis=0 AND pankou is not null AND linchangpankou is not null'
+    return database.execQuery(sql)
+
+def updateLinchangPrediction(database,params):
+    sql = 'UPDATE  forecast_data SET shengmax=%s,shengmin=%s,pingmax=%s,pingmin=%s,fumax=%s,fumin=%s,shangmax=%s,shangmin=%s,xiamax=%s,xiamin=%s,correct_analysis=1 WHERE id=%s'
+    database.execNonQuery(sql,params)
