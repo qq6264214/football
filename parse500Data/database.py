@@ -82,7 +82,7 @@ def queryCount(database,sql):
     return list[0][0]
 
 def insertCondition(database,condition):
-    sql = 'INSERT IGNORE INTO `condition_copy` (`pankou`,`linchangpankou`, `condition`,`type`, `total_count`, `count`,' \
+    sql = 'INSERT IGNORE INTO `condition` (`pankou`,`linchangpankou`, `condition`,`type`, `total_count`, `count`,' \
           '`percent`,`model`,`col_name`,`col_val`) VALUES (%s,%s,%s,%s,%s,%s,%s,1,%s,%s)'
     if condition == None or len(condition) == 0:
         return
@@ -101,8 +101,8 @@ def updateAddRealTimeFlag(database,result):
     database.execManyNonQuery(sql, result)
 
 def queryNeedUpdateLinchang(database,startTime,endTime):
-    sql = 'SELECT bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE real_time IS NOT NULL AND linchangpankou IS NULL AND real_time>=%s AND real_time<=%s AND add_linchangpankou<2'
-    return database.execQuery(sql,(startTime,endTime))
+    sql = 'SELECT bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE real_time IS NOT NULL AND linchangpankou IS NULL  AND real_time<=%s AND add_linchangpankou<2'
+    return database.execQuery(sql,(endTime,))
 
 def updateLinchang(database,result):
     sql = 'UPDATE forecast_data SET linchangpankou=%s WHERE bisaishijian=%s AND bisaileixing=%s AND zhudui=%s AND kedui=%s'
@@ -116,7 +116,7 @@ def queryNotFirstAna(database):
     return database.execQuery(sql)
 
 def queryColNameAndValByPankou(database,pankou,linchangpankou):
-    sql = 'SELECT col_name,col_val,`condition` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition` ORDER BY col_name,col_val,`condition`'
+    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition` ORDER BY col_name,col_val,`condition`'
     return database.execQuery(sql,(pankou,linchangpankou))
 
 def queryVals(database,sqlCols,result):

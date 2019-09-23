@@ -140,9 +140,9 @@ if __name__ == '__main__':
     #     wrap1CorrectValueRules(database, j)
     # for k in point2Arr:
     #     wrap3CorrectValueRules(database, k, 2)
-    for m in point3Arr:
-        wrap3CorrectValueRules(database, m, 3)
+    # for m in point3Arr:
+    #     wrap3CorrectValueRules(database, m, 3)
     for n in point4Arr:
         wrap3CorrectValueRules(database, n, 4)
-    for i in colArrs:
-        wrap3CorrectValueRules(database, i)
+    # for i in colArrs:
+    #     wrap3CorrectValueRules(database, i)
