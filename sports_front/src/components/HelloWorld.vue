@@ -14,6 +14,8 @@
         </el-date-picker> 
         <span class="condition-name" >概率阈值:</span>
         <el-input v-model="num" placeholder="请输入0-1之间的数字" style="width:150px;float:left"></el-input>
+        <span class="condition-name" >冲突阈值:</span>
+        <el-input v-model="conflictVal" placeholder="请输入0-1之间的数字" style="width:150px;float:left"></el-input>
         <el-button type="primary" icon="el-icon-search" style="float:left" @click="initPredictions">搜索</el-button>
         
           <el-upload
@@ -45,7 +47,7 @@
          <el-table
           :data="tableData"
           style="width: 100%"
-           height="750"
+          height="750"         
           :cell-class-name="setCellClass">
           <el-table-column
             prop="type"
@@ -60,11 +62,13 @@
           <el-table-column
             prop="docTime"
             label="采集时间"
+            sortable
             width="100">
           </el-table-column>
           <el-table-column
             prop="matchTime"
             label="比赛时间"
+            sortable
             width="140">
           </el-table-column>
           <el-table-column
@@ -138,6 +142,16 @@
             width="70"
             >
           </el-table-column>
+          <el-table-column
+            prop="isConflict"
+            label="冲突"
+            width="70">
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.isConflict === true ? 'danger' : ''"
+                disable-transitions>{{scope.row.isConflict === true?'是':'否'}}</el-tag>
+            </template>
+          </el-table-column>
         </el-table>
       </el-row>
     </div>
@@ -160,7 +174,8 @@ export default {
        fileList:[],
        upload1Datapath:'',
        upload3Datapath:'',
-       loading:''
+       loading:'',
+       conflictVal:0.6
     }
   },
   methods:{
@@ -201,12 +216,37 @@ export default {
             o['shmin'] = i[16]
             o['xmax'] = i[17]
             o['xmin'] = i[18]
+            o['isConflict']=this.checkIsConflict(i[9],i[11],i[13],i[15],i[17],i[8]||i[7])
             arr.push(o)
           }
           this.tableData = arr
         })
 
     },
+    checkIsConflict(smax,pmax,fmax,shmax,xmax,pankou){
+      let conflictVal = this.conflictVal
+      if(smax>conflictVal && pmax>conflictVal){
+        return true
+      }else if(pmax>conflictVal && fmax>conflictVal){
+        return true
+      }else if(fmax>conflictVal && smax>conflictVal){
+        return true
+      }else if(shmax>conflictVal && xmax>conflictVal){
+        return true
+      }else if(pankou>0 && smax>conflictVal && xmax>conflictVal){
+        return true
+      }else if(pankou>0 && (pmax>conflictVal || fmax>conflictVal) && shmax>conflictVal ){
+        return true
+      }else if(pankou<0 && fmax>conflictVal && xmax>conflictVal){
+        return true
+      }else if(pankou<0 && (smax>conflictVal || pmax>conflictVal) && shmax>conflictVal){
+        return true
+      }
+      return false
+
+    },
+
+
     setCellClass({row, column, rowIndex, columnIndex}){
       if(columnIndex==8){       
         return this.getClassName(row.smax)
