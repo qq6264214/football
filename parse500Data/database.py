@@ -116,7 +116,7 @@ def queryNotFirstAna(database):
     return database.execQuery(sql)
 
 def queryColNameAndValByPankou(database,pankou,linchangpankou):
-    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition` ORDER BY col_name,col_val,`condition`'
+    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition`,`type` ORDER BY col_name,col_val,`condition`,`type`'
     return database.execQuery(sql,(pankou,linchangpankou))
 
 def queryVals(database,sqlCols,result):
@@ -129,9 +129,13 @@ def updatePrediction(database,params):
 
 
 def queryNotLinchangAna(database):
-    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui,linchangpankou FROM forecast_data WHERE correct_analysis=0 AND pankou is not null AND linchangpankou is not null'
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui,linchangpankou FROM forecast_data WHERE correct_analysis=0 AND pankou is not null AND linchangpankou is not null AND linchangpankou!=pankou'
     return database.execQuery(sql)
 
 def updateLinchangPrediction(database,params):
     sql = 'UPDATE  forecast_data SET shengmax=%s,shengmin=%s,pingmax=%s,pingmin=%s,fumax=%s,fumin=%s,shangmax=%s,shangmin=%s,xiamax=%s,xiamin=%s,correct_analysis=1 WHERE id=%s'
     database.execNonQuery(sql,params)
+
+def updateNotNeedLinchang(database):
+    sql = 'UPDATE forecast_data SET correct_analysis=1 WHERE start_analysis=1 AND pankou=linchangpankou AND pankou is not null'
+    database.execNonQuery(sql)

@@ -42,6 +42,7 @@ def linchangAna(database):
         maxmins.append(t[0])
         DB.updateLinchangPrediction(database, tuple(maxmins))
     # threadPool.wait()
+    DB.updateNotNeedLinchang(database)
 def dealEveryMatch(tmap):
     database = tmap['database']
     pankou = tmap['pankou']
@@ -177,6 +178,6 @@ def queryCount(database,pankou,linchangpankou,conditionStrs,index):
 
 
 if __name__ == '__main__':
-   database = DB.Database('localhost', 'root', 'root', 'sports')
-   firstAna(database)
-
+    database = DB.Database('localhost', 'root', 'root', 'sports')
+   # firstAna(database)
+    linchangAna(database)
