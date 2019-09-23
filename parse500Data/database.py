@@ -137,5 +137,5 @@ def updateLinchangPrediction(database,params):
     database.execNonQuery(sql,params)
 
 def updateNotNeedLinchang(database):
-    sql = 'UPDATE forecast_data SET correct_analysis=1 WHERE start_analysis=1 AND pankou=linchangpankou AND pankou is not null'
+    sql = 'UPDATE forecast_data SET correct_analysis=1 WHERE start_analysis=1 AND pankou=linchangpankou AND pankou is not null AND correct_analysis=0'
     database.execNonQuery(sql)
