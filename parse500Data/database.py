@@ -139,3 +139,25 @@ def updateLinchangPrediction(database,params):
 def updateNotNeedLinchang(database):
     sql = 'UPDATE forecast_data SET correct_analysis=1 WHERE start_analysis=1 AND pankou=linchangpankou AND pankou is not null AND correct_analysis=0'
     database.execNonQuery(sql)
+
+def updateForecastDataResult(database):
+    sql = 'UPDATE forecast_data  c INNER JOIN football_data a on a.bisaileixing=c.bisaileixing AND a.bisaishijian=c.bisaishijian ' \
+          'AND a.zhudui=c.zhudui AND a.kedui=c.kedui SET c.zhubifen = a.zhubifen,c.kebifen=a.kebifen WHERE c.zhubifen is  null'
+
+    database.execNonQuery(sql)
+
+def queryResult(database,bisaishijian,yuzhi):
+    sql = 'SELECT a.pankou,a.zhubifen,a.kebifen,a.shengmax,a.pingmax,a.fumax,a.shangmax,a.xiamax ' \
+          'FROM forecast_data a WHERE (a.shengmax>%s OR a.pingmax>%s OR a.fumax>%s or a.shangmax>%s or a.xiamax>%s) AND a.bisaishijian>=%s AND a.zhubifen is not NULL ' \
+          #'AND a.linchangpankou is not null'
+
+    return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,yuzhi,yuzhi,bisaishijian))
+
+def queryOupei(database):
+    sql = 'SELECT pankou,ROUND(AVG(peilv1),2),ROUND(AVG(peilv2),2),ROUND(AVG(peilv3),2) FROM football_data GROUP BY pankou ORDER BY pankou'
+    return database.execQuery(sql)
+def insertHistoryForeData(database,bisaishijian):
+    sql = 'INSERT IGNORE INTO forecast_data (bisaileixing,changci,bisaishijian,zhudui,kedui,pankou,linchangpankou,zhubifen,kebifen) ' \
+          'SELECT bisaileixing,changci,bisaishijian,zhudui,kedui,pankou,linchangpankou,zhubifen,kebifen FROM football_data WHERE bisaishijian>=%s'
+
+    database.execNonQuery(sql,bisaishijian)

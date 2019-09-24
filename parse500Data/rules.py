@@ -23,13 +23,11 @@ def wrap3CorrectValueRules(database, colName,point=2):
             tpankousql = pankousql % (constr)
             pankouList = database.execQuery(tpankousql)
             for j in pankouList:
-                # if j[1] < 10:
-                #     continue
-                print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
+                #print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
                 totalSql = orginSql + constr
                 totalSql = totalSql + ' AND pankou=%s AND  linchangpankou=%s' % (j[0], j[2])
                 count = j[1]
-                addCond(totalSql, count, j[0], j[2], conds, constr, name, num)
+                addCond(totalSql, count, j[0], j[2], conds, constr, name, num,database)
 
         DB.insertCondition(database, conds)
 
@@ -52,35 +50,36 @@ def wrap1CorrectValueRules(database, colName):
         tpankousql = pankousql % (constr)
         pankouList = database.execQuery(tpankousql)
         for j in pankouList:
-            print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
+            #print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
             totalSql = orginSql + constr
             totalSql = totalSql + ' AND pankou=%s AND  linchangpankou=%s' % (j[0], j[2])
             count = j[1]
-            addCond(totalSql, count, j[0], j[2], conds, constr, name, num)
+            addCond(totalSql, count, j[0], j[2], conds, constr, name, num,database)
 
     DB.insertCondition(database, conds)
 
-def addCond(totalSql, count, pankou, linchangpankou, conds, constr, colName, colVal):
+def addCond(totalSql, count, pankou, linchangpankou, conds, constr, colName, colVal,database):
     rArr = [[' AND zhubifen>kebifen ', '胜'], [' AND zhubifen=kebifen ', '平'], [' AND zhubifen<kebifen ', '负'],
             [' AND (zhubifen-kebifen-linchangpankou)*linchangpankou>0 ', '上盘'], [' AND (zhubifen-kebifen-linchangpankou)*linchangpankou<0 ', '下盘']]
     for index in range(len(rArr)):
         i = rArr[index]
-        pCount = printResult(totalSql, i[0], count)
+        pCount = printResult(totalSql, i[0], database)
         if pCount is not None:
-            if ((1 < pankou < 2 and i == 0) or (-1 > pankou > -2 and i == 2)) and pCount / count < 0.78:
+            if ((1 < pankou < 2 and index == 0) or (-1 > pankou > -2 and index == 2)) and pCount / count < 0.78:
                 continue
-            elif ((pankou >= 2 and i == 0) or (pankou <= -2 and i == 2)) and pCount / count < 0.92:
+            elif ((pankou >= 2 and index == 0) or (pankou <= -2 and index == 2)) and pCount / count < 0.92:
                 continue
             elif pCount / count < 0.7:
                 continue
-
+            print(('列名:%s,值:%s,盘口:%s,临场盘口:%s,类型:%s,总场次:%s,命中场次:%s,比例:%s')
+                  % (colName, colVal, pankou, linchangpankou,i[1],count,pCount,round(pCount / count, 3)))
             conTemp = [pankou, linchangpankou, constr.strip(), index + 1, count, pCount, round(pCount / count, 3),
                        colName, colVal]
             conds.append(conTemp)
     return conds
 
 
-def printResult(totalSql, condStr, totalCount):
+def printResult(totalSql, condStr, database):
     countSql = totalSql + condStr
     count = DB.queryCount(database, countSql)
 
@@ -136,13 +135,14 @@ if __name__ == '__main__':
     arrType2 = ['shengfuqushicha', 'zonghepingjia2', 'weizhi']
 
     colArrs = arr1 + arr2 + arr3
-    # for j in arrType2:
-    #     wrap1CorrectValueRules(database, j)
-    # for k in point2Arr:
-    #     wrap3CorrectValueRules(database, k, 2)
-    # for m in point3Arr:
-    #     wrap3CorrectValueRules(database, m, 3)
+
+    for k in point2Arr:
+        wrap3CorrectValueRules(database, k, 2)
+    for m in point3Arr:
+        wrap3CorrectValueRules(database, m, 3)
     for n in point4Arr:
         wrap3CorrectValueRules(database, n, 4)
-    # for i in colArrs:
-    #     wrap3CorrectValueRules(database, i)
+    for i in colArrs:
+        wrap3CorrectValueRules(database, i)
+    # for j in arrType2:
+    #     wrap1CorrectValueRules(database, j)

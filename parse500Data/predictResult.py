@@ -138,11 +138,18 @@ def getMaxMins(database,pankou,linchangpankou,bisaileixing,bisaishijian,zhudui,k
     for cbArr in combinArr:
         combinNum += len(cbArr)
     print('组合总共的个数:%s'%(combinNum))
+
     maxmins = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    maxPreNum = 5000 #最大预测条数
+    curNum = 0
     #分为5类
     for h in range(len(combinArr)):
         cSqlArr= combinArr[h]
         for cArr in cSqlArr:
+            if curNum>maxPreNum:
+                print(('组合个数超过%s个')%(maxPreNum))
+                break
+            curNum +=1
             totalCount, pCount = queryCount(database, pankou, pankou, cArr,h)
             if totalCount is None:
                 continue
@@ -179,5 +186,5 @@ def queryCount(database,pankou,linchangpankou,conditionStrs,index):
 
 if __name__ == '__main__':
     database = DB.Database('localhost', 'root', 'root', 'sports')
-   # firstAna(database)
-    linchangAna(database)
+    firstAna(database)
+    # linchangAna(database)
