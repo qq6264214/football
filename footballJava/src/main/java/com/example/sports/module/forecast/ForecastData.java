@@ -88,6 +88,10 @@ public class ForecastData {
 
     private Integer correctAnalysis;
 
+    private Integer zhubifen;
+
+    private Integer kebifen;
+
 
     //详情
     @Column(columnDefinition="TEXT")
@@ -283,5 +287,21 @@ public class ForecastData {
 
     public void setAddLinchangpankou(Integer addLinchangpankou) {
         this.addLinchangpankou = addLinchangpankou;
+    }
+
+    public Integer getZhubifen() {
+        return zhubifen;
+    }
+
+    public void setZhubifen( Integer zhubifen ) {
+        this.zhubifen = zhubifen;
+    }
+
+    public Integer getKebifen() {
+        return kebifen;
+    }
+
+    public void setKebifen( Integer kebifen ) {
+        this.kebifen = kebifen;
     }
 }
