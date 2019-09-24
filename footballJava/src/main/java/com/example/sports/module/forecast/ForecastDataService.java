@@ -18,7 +18,10 @@ public class ForecastDataService {
     private EntityManager entityManager;
 
     public List list(Date startDate, Date endDate, java.util.Date startTime, java.util.Date endTime,Double value){
-        String sql = "SELECT * FROM forecast_data WHERE ((bisaishijian>=? AND bisaishijian<= ? AND real_time is null) " +
+        String sql = "SELECT a.id,a.bisaileixing,a.changci,a.bisaishijian,real_time,a.zhudui,a.kedui,a.pankou,a.linchangpankou,shengmax," +
+                "pingmax,fumax,shangmax,xiamax,a.zhubifen,a.kebifen,b.peilv1,b.peilv2,b.peilv3 FROM forecast_data a INNER JOIN football_data b " +
+                "ON a.bisaileixing=b.bisaileixing AND a.bisaishijian=b.bisaishijian AND a.zhudui=b.zhudui AND a.kedui=b.kedui" +
+                "  WHERE ((a.bisaishijian>=? AND a.bisaishijian<= ? AND real_time is null) " +
                 "OR (real_time is NOT NULL AND real_time>=? AND real_time <= ?)) " +
                 "AND (shengmax>? OR pingmax>? or fumax>? OR shangmax>? OR xiamax>?) ORDER BY real_time";
 
