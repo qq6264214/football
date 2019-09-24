@@ -14,10 +14,9 @@
         </el-date-picker> 
         <span class="condition-name" >概率阈值:</span>
         <el-input v-model="num" placeholder="请输入0-1之间的数字" style="width:150px;float:left"></el-input>
-        <span class="condition-name" >冲突阈值:</span>
-        <el-input v-model="conflictVal" placeholder="请输入0-1之间的数字" style="width:150px;float:left"></el-input>
-        <el-button type="primary" icon="el-icon-search" style="float:left" @click="initPredictions">搜索</el-button>
-        
+        <!-- <span class="condition-name" >冲突阈值:</span>
+        <el-input v-model="conflictVal" placeholder="请输入0-1之间的数字" style="width:150px;float:left"></el-input> -->
+        <el-button type="primary" icon="el-icon-search" style="float:left" @click="initPredictions">搜索</el-button>      
           <el-upload
           class="upload-demo"
           :action="upload1Datapath" 
@@ -92,6 +91,31 @@
             width="60">
           </el-table-column>
           <el-table-column
+            prop="maxName"
+            label="推荐"
+            width="70">
+          </el-table-column>
+           <el-table-column
+            prop="maxVal"
+            label="概率"
+            width="70">
+          </el-table-column>
+          <el-table-column
+            prop="isWorth"
+            label="值得"
+            width="70">
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.isWorth === true ? 'danger' : ''"
+                disable-transitions>{{scope.row.isWorth === true?'是':'否'}}</el-tag>
+            </template>
+          </el-table-column> 
+          <el-table-column
+            prop="bifen"
+            label="比分"
+            width="70">
+          </el-table-column>
+          <!-- <el-table-column
             prop="smax"
             label="胜最大"
             width="70">
@@ -151,7 +175,7 @@
                 :type="scope.row.isConflict === true ? 'danger' : ''"
                 disable-transitions>{{scope.row.isConflict === true?'是':'否'}}</el-tag>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
       </el-row>
     </div>
@@ -195,6 +219,7 @@ export default {
           }          
           let list = data.data
           let arr = []
+          debugger
           for(let i of list){
             let o = {}
             o['type']= i[1]
@@ -206,22 +231,46 @@ export default {
             o['kedui'] = i[6]
             o['pankou'] = i[7]
             o['linchangpankou'] = i[8]
-            o['smax'] = i[9]
-            o['smin'] = i[10]
-            o['pmax'] = i[11]
-            o['pmin'] = i[12]
-            o['fmax'] = i[13]
-            o['fmin'] = i[14]
-            o['shmax'] = i[15]
-            o['shmin'] = i[16]
-            o['xmax'] = i[17]
-            o['xmin'] = i[18]
-            o['isConflict']=this.checkIsConflict(i[9],i[11],i[13],i[15],i[17],i[8]||i[7])
+            let valArr = i.slice(9,14)
+            o['maxVal'] = Math.max(...valArr)
+            let maxIndex = valArr.indexOf( o['maxVal'])
+            o['maxName'] = this.getMaxName(maxIndex)
+            o['isWorth'] = this.checkWorth(maxIndex,o['maxVal'],i.slice(16,19))
+            o['bifen'] = i[14]?i[14]+':'+i[15]:''
+            //o['isConflict']=this.checkIsConflict(i[9],i[11],i[13],i[15],i[17],i[8]||i[7])
             arr.push(o)
           }
           this.tableData = arr
         })
 
+    },
+    checkWorth(index,val,pArr){
+      if(index>2){
+        return true
+      }else if(pArr[index]*val<1.02){
+        return false
+      }
+      return true
+
+
+
+
+    },
+    getMaxName(index){
+      switch(index){
+        case 0:
+          return '胜'
+        case 1:
+          return '平'
+        case 2:
+          return '负'
+        case 3:
+          return '上'
+        case 4:
+          return '下'
+        default:
+          return ''
+      }
     },
     checkIsConflict(smax,pmax,fmax,shmax,xmax,pankou){
       let conflictVal = this.conflictVal
