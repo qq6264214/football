@@ -40,6 +40,9 @@ public class ForecastDataService {
 
         return list;
     }
-
+    public Integer getNotAnaNum(){
+        List list = forecastDataRep.findByStartAnalysis(0);
+        return list.size();
+    }
 
 }

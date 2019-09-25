@@ -110,5 +110,12 @@ public class SportsController {
 
         return new ReplyInfo(true,list);
     }
+    @GetMapping(value = "/forecast/needAnaNum")
+    public ReplyInfo needAnaNum( HttpServletRequest req){
+        Integer num = forecastDataService.getNotAnaNum();
+        return new ReplyInfo(true,num);
+    }
+
+
 
 }
