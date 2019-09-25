@@ -112,7 +112,7 @@ def updateAddLinchangFlag(database,result):
     database.execManyNonQuery(sql, result)
 
 def queryNotFirstAna(database):
-    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null'
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null '
     return database.execQuery(sql)
 
 def queryColNameAndValByPankou(database,pankou,linchangpankou):
@@ -146,12 +146,13 @@ def updateForecastDataResult(database):
 
     database.execNonQuery(sql)
 
-def queryResult(database,bisaishijian,yuzhi):
+def queryResult(database,bisaishijian,bisaishijianend,yuzhi):
     sql = 'SELECT a.pankou,a.zhubifen,a.kebifen,a.shengmax,a.pingmax,a.fumax,a.shangmax,a.xiamax ' \
-          'FROM forecast_data a WHERE (a.shengmax>%s OR a.pingmax>%s OR a.fumax>%s or a.shangmax>%s or a.xiamax>%s) AND a.bisaishijian>=%s AND a.zhubifen is not NULL ' \
+          'FROM forecast_data a WHERE (a.shengmax>%s OR a.pingmax>%s OR a.fumax>%s or a.shangmax>%s or a.xiamax>%s) AND a.bisaishijian>=%s AND a.bisaishijian<=%s AND a.zhubifen is not NULL ' \
+          'and a.linchangpankou=a.pankou'
           #'AND a.linchangpankou is not null'
 
-    return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,yuzhi,yuzhi,bisaishijian))
+    return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,yuzhi,yuzhi,bisaishijian,bisaishijianend))
 
 def queryOupei(database):
     sql = 'SELECT pankou,ROUND(AVG(peilv1),2),ROUND(AVG(peilv2),2),ROUND(AVG(peilv3),2) FROM football_data GROUP BY pankou ORDER BY pankou'

@@ -24,11 +24,11 @@ class Task():
             print('firstAna success')
         except Exception as e:
             traceback.print_exc()
-        try:
-            linchangAna(self.database)
-            print('linchangAna success')
-        except Exception as e:
-            traceback.print_exc()
+        # try:
+        #     linchangAna(self.database)
+        #     print('linchangAna success')
+        # except Exception as e:
+        #     traceback.print_exc()
     def run(self):
         schedule.every(5).minutes.do(self.job)
         while True:
@@ -37,6 +37,8 @@ class Task():
 
 if __name__ == '__main__':
     task = Task()
+    # task.job()
     task.run()
+
 
 

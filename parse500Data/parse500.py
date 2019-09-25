@@ -108,21 +108,19 @@ def getlpk(id):
             return dealPankou(tds[1].get_text().strip().split(' ')[0])
     return None
 
-def updateBifen(bisaiDate,leixings,matchs):
+def updateBifen(bisaiDate,leixings,matchs,database):
     print(str(bisaiDate[0]))
     map = parseData(str(bisaiDate[0]), leixings)
-
     afterDay = (bisaiDate[0]+datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    # if datetime.datetime.now().strftime("%Y-%m-%d") != afterDay:
+    map2 = parseData(afterDay, leixings)
 
-    if datetime.datetime.now().strftime("%Y-%m-%d") != afterDay:
-        map2 = parseData(afterDay, leixings)
-
-        for leixing in map2:
-            arr = map2[leixing]
-            if leixing in map:
-                map[leixing] = map[leixing]+arr
-            else:
-                map[leixing] = arr
+    for leixing in map2:
+        arr = map2[leixing]
+        if leixing in map:
+            map[leixing] = map[leixing]+arr
+        else:
+            map[leixing] = arr
 
     updateDatas = []
 
@@ -158,7 +156,7 @@ def updateTask(database):
             for lx in leixings:
                 lxs.append(lx[0])
 
-            updateBifen(bisaiDate,lxs,teams)
+            updateBifen(bisaiDate,lxs,teams,database)
         except Exception as e:
             print(e)
 
@@ -167,5 +165,6 @@ def updateTask(database):
 if __name__ == '__main__':
     database = DB.Database('localhost', 'root', 'root', 'sports')
     updateTask(database)
+    DB.updateForecastDataResult(database)
     #lexings = ['韩足杯','芬甲']
     #parseData('2019-07-02',lexings)

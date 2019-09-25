@@ -3,10 +3,10 @@ import database as DB
 conflictVal = 0.6
 
 
-def compute(database,bisaishijian,yuzhi=0.75):
+def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
     ouPeiList = DB.queryOupei(database)
     peilvMap = {}
-    sxpeilv = 1.85
+    sxpeilv = 0.85
 
     for i in ouPeiList:
         i =  list(i)
@@ -14,7 +14,7 @@ def compute(database,bisaishijian,yuzhi=0.75):
         del i[0]
         peilvMap[pankou]=i
 
-    forecastList = DB.queryResult(database,bisaishijian,yuzhi)
+    forecastList = DB.queryResult(database,bisaishijian,bisaishijianend,yuzhi)
     #默认期望
     expect = 0
     for j in forecastList:
@@ -33,6 +33,8 @@ def compute(database,bisaishijian,yuzhi=0.75):
         maxIndex = j.index(max(j))
         #maxVal = j[maxIndex]
         if maxIndex in [0,1,2] :
+            if (peilvMap[lpk][maxIndex])*j[maxIndex]<=1.02:
+                continue
             if (maxIndex == 0 and zbf>kbf) or (maxIndex == 1 and zbf==kbf) or (maxIndex == 2 and zbf<kbf):
                 expect += peilvMap[lpk][maxIndex]-1
             else:
@@ -48,7 +50,7 @@ def compute(database,bisaishijian,yuzhi=0.75):
             elif (zbf-kbf-lpk)*cs>0:
                 expect += sxpeilv
             elif (zbf-kbf-lpk)*cs == -0.25:
-                expect -= sxpeilv * 0.5
+                expect -= 0.5
             else:
                 expect = expect - 1
         elif maxIndex==4:
@@ -58,10 +60,11 @@ def compute(database,bisaishijian,yuzhi=0.75):
             elif (zbf-kbf-lpk)*cs<0:
                 expect += sxpeilv
             elif (zbf-kbf-lpk)*cs == 0.25:
-                expect -= sxpeilv * 0.5
+                expect -= 0.5
             else:
                 expect = expect - 1
-    print(('期望:%s')%(expect))
+    expect = round(expect,2)
+    print(('时间:%s-%s,期望:%s')%(bisaishijian,bisaishijianend,expect))
 
 def checkIsConflict(conflictVal,smax,pmax,fmax,shmax,xmax,pankou):
 
@@ -73,9 +76,9 @@ def checkIsConflict(conflictVal,smax,pmax,fmax,shmax,xmax,pankou):
     return False
 
 
-
-
-
 if __name__ == '__main__':
     database = DB.Database('localhost', 'root', 'root', 'sports')
-    compute(database,'2019-09-01',0.75)
+    for i in range(1,24):
+        i=i if i>9 else '0'+str(i)
+        d = '2019-09-%s'%(i)
+        compute(database,d,d,0.75)
