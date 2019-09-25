@@ -10,6 +10,10 @@ export const getPredictions = params => {
     return axios.get(`${base}/forecast/list`, { params: params })
 }
 
+export const getNeedAnaNum = () => {
+    return axios.get(`${base}/forecast/needAnaNum`, {  })
+}
+
 
 export const upload1DataApi = `${base}/file/upload1Data`
 
