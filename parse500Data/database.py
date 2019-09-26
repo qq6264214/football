@@ -149,7 +149,7 @@ def updateForecastDataResult(database):
 def queryResult(database,bisaishijian,bisaishijianend,yuzhi):
     sql = 'SELECT a.pankou,a.zhubifen,a.kebifen,a.shengmax,a.pingmax,a.fumax,a.shangmax,a.xiamax ' \
           'FROM forecast_data a WHERE (a.shengmax>%s OR a.pingmax>%s OR a.fumax>%s or a.shangmax>%s or a.xiamax>%s) AND a.bisaishijian>=%s AND a.bisaishijian<=%s AND a.zhubifen is not NULL ' \
-          'and a.linchangpankou=a.pankou'
+          #'and a.linchangpankou=a.pankou'
           #'AND a.linchangpankou is not null'
 
     return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,yuzhi,yuzhi,bisaishijian,bisaishijianend))

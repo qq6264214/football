@@ -451,3 +451,59 @@ arr3 = {"lisanzhichu","lisanzhiji","lisanzhichachu","lisanzhichaji","","lisanzhi
             "peifuzhishutiaozhengyoubian","peifuzhishutiaozhengxia1youbian","peifuzhishutiaozhengxia2youbian",
             "peifuzhishutiaozhengxia3youbian","peifuzhishutiaozhengxia4youbian","peifuzhishutiaozhengxia5youbian",
             "peifuzhishutiaozhengxia6youbian","qiwangfangchabiyoubian","junhengzhishuyoubian"}
+
+
+
+
+
+point2Arr = ["peilv", "peilvlisanzhi1", "peilvlisanzhi2", "peilvzhongzhi", "pingjunpeilv", "pingjunpeilvcha",
+                 "chupeizuigaopeilv", "jishizuigaopeilv", "chupeizuidipeilv", "jishizuidipeilv", "chupeipingjunpeilv",
+                 "jishipingjunpeilv", "bianyilisanzhishuxia", "qushipianlizhi", "zonghefengxianzhishu", "peilvqiwang",
+                 "peilvqujian", "zhibiao", "zhibiaoqujianbi","kailifangchabi","baolengzhishu", "kailizhishuchu",
+                 "kailizhishuji", "fangcha", "zonghepingjia1", "zonghepingjia3","kailizhishuzhongzhi", "kailizhishu",
+                 "baolengzhishuxin", "peilvqiwangjunzhi", "lisanzhi","kaipeifangchahe", "kaipeichagaodicha","zhongjiyoushi",
+                 "youshicha", "shaixuanbi", "shaixuancha", "zhongjishaixuan", "fa", "fb","youshichayoubian", "shaixuanbiyoubian",
+                 "shaixuanchayoubian", "zhongjishaixuanyoubian","zonghefangchabi", "lisanzhichu", "lisanbi","bianyilisanzhishu",
+                 "qujianqiwangchaquan", "qujianqiwangchazhu", "fc", "fd", "qiwangfengxianbi","zonghezhishu", "peilvfangchahe",
+                 "zonghefengxianbi", "kailizhishucha", "pellvqujianchu", "peilvqujianji","peilvqujianbi","peifuzhishutiaozhengxia1",
+                 "peifuzhishutiaozhengxia2", "peifuzhishutiaozhengxia3","peifuzhishutiaozhengxia4", "peifuzhishutiaozhengxia5",
+                 "peifuzhishutiaozhengxia6", "qiwangfangchabi","junhengzhishu", "lisanzhichuyoubian", "lisanzhijiyoubian", "lisanzhichachuyoubian",
+                 "lisanzhibianhualvyoubian", "lisanzhishuyoubian", "bianyilisanzhishuyoubian","bianyilisanzhishuxiayoubian",
+                 "qujianqiwangchaquanyoubian", "qujianqiwangchazhuyoubian", "fcyoubian","fdyoubian", "qiwangfengxianbiyoubian",
+                 "zonghezhishuyoubian", "peilvfangchaheyoubian","zonghefengxianbiyoubian","kailizhishuchayoubian", "baolengzhishuyoubian",
+                 "zhibiao1youbian", "peilvqujianchuyoubian", "peilvqujianjiyoubian","peilvqujianbiyoubian",
+                 "zonghefengxianzhishuyoubian", "peifuzhishuyoubian", "peifuzhishutiaozhengxia6youbian", "qiwangfangchabiyoubian",
+                 "junhengzhishuyoubian"]
+# 3位小数
+point3Arr = ["peilvbianhua", "zucaizhishu", "lengrezhishu", "lisanzhicha", "bocaiyinglizhishu", "chuxuanzhishu",
+             "xuandanzhishu", "lisanzhibianhualv", "dingdanzhishu",
+             "shenglvzhongzhi", "pingjunshenglv", "zuigaopeilvbianhua", "zuidipeilvbianhua", "pingjunpeilvbianhua",
+             "yinglizhishu",
+             "chupeizuigaoshenglv", "jishizuigaoshenglv", "zuigaoshenglvbianhua", "chupeizuidishenglv",
+             "jishizuidishenglv", "zuidishenglvbianhua", "pingjunshenglvbianhua",
+             "chupeipingjunshenglv", "jishipingjunshenglv", "lisanzhichajiyoubian", "lisanbiyoubian",
+             "fengxianzhishuyoubian",
+             "peifuzhishutiaozhengyoubian", "peifuzhishutiaozhengxia1youbian", "peifuzhishutiaozhengxia2youbian",
+             "peifuzhishutiaozhengxia3youbian", "peifuzhishutiaozhengxia4youbian",
+             "peifuzhishutiaozhengxia5youbian", ]
+# 4位小数
+point4Arr = ["peifuzhishu", "peifuzhishuxin", "kailibianhualv", "kaipeicha", "pianlizhi", "zhongzhipianlizhi",
+             "pianlilv",
+             "zonghepianlizhi", "peilvfanhuanchaqujian", "peilvfanhuancha", "youshizhishu1", "youshizhishu2",
+             "youshizhishu3",
+             "youshizhishu4", "youshizhishu5", "youhuayoushi", ]
+# 单独元素
+arrType2 = ['shengfuqushicha', 'zonghepingjia2', 'weizhi']
+
+
+def getPoint(colName):
+    if colName in point2Arr:
+        return 2
+    elif colName in point3Arr:
+        return 3
+    elif colName in point4Arr:
+        return 4
+    elif colName in arrType2:
+        return 2
+    return
+

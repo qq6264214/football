@@ -4,12 +4,12 @@ import database as DB
 def wrap3CorrectValueRules(database, colName,point=2):
     # colName = 'fc'
     orginSql = 'SELECT count(1) FROM football_data WHERE 1=1 '
-    pankousql = 'SELECT pankou,COUNT(1),linchangpankou FROM football_data WHERE 1=1 and pankou is not null AND linchangpankou is not null %s GROUP BY pankou,' \
-                'linchangpankou HAVING count(1)>10 order by pankou,linchangpankou'
+    pankousql = 'SELECT pankou,COUNT(1),pankou FROM football_data WHERE 1=1 and pankou is not null  %s GROUP BY pankou' \
+                ' HAVING count(1)>14 order by pankou'
     for i in range(3):
         conds = []
         name = colName + str(i + 1)
-        valuesql = 'SELECT ROUND(%s,%s),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,%s) HAVING count(1)>10 ORDER BY ROUND(%s,%s)' % (
+        valuesql = 'SELECT ROUND(%s,%s),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,%s) HAVING count(1)>14 ORDER BY ROUND(%s,%s)' % (
             name,point, name, name,point, name,point)
         valList = database.execQuery(valuesql)
         if valList is None or len(valList) == 0:
@@ -25,7 +25,7 @@ def wrap3CorrectValueRules(database, colName,point=2):
             for j in pankouList:
                 #print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
                 totalSql = orginSql + constr
-                totalSql = totalSql + ' AND pankou=%s AND  linchangpankou=%s' % (j[0], j[2])
+                totalSql = totalSql + ' AND pankou=%s ' % (j[0])
                 count = j[1]
                 addCond(totalSql, count, j[0], j[2], conds, constr, name, num,database)
 
@@ -34,12 +34,12 @@ def wrap3CorrectValueRules(database, colName,point=2):
 
 def wrap1CorrectValueRules(database, colName):
     orginSql = 'SELECT count(1) FROM football_data WHERE 1=1 '
-    pankousql = 'SELECT pankou,COUNT(1),linchangpankou FROM football_data WHERE 1=1 and pankou is not null AND linchangpankou is not null %s GROUP BY pankou,' \
-                'linchangpankou HAVING count(1)>10 order by pankou,linchangpankou'
+    pankousql = 'SELECT pankou,COUNT(1),pankou FROM football_data WHERE 1=1 and pankou is not null  %s GROUP BY pankou' \
+                ' HAVING count(1)>14 order by pankou'
 
     conds = []
     name = colName
-    valuesql = 'SELECT ROUND(%s,2),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,2) HAVING count(1)>10 ORDER BY ROUND(%s,2)' % (
+    valuesql = 'SELECT ROUND(%s,2),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,2) HAVING count(1)>14 ORDER BY ROUND(%s,2)' % (
         name, name, name, name)
     valList = database.execQuery(valuesql)
     if valList is None or len(valList) == 0:
@@ -52,7 +52,7 @@ def wrap1CorrectValueRules(database, colName):
         for j in pankouList:
             #print(('列名:%s,值:%s,盘口:%s,临场盘口:%s') % (name, num, j[0], j[2]))
             totalSql = orginSql + constr
-            totalSql = totalSql + ' AND pankou=%s AND  linchangpankou=%s' % (j[0], j[2])
+            totalSql = totalSql + ' AND pankou=%s ' % (j[0])
             count = j[1]
             addCond(totalSql, count, j[0], j[2], conds, constr, name, num,database)
 
@@ -60,7 +60,7 @@ def wrap1CorrectValueRules(database, colName):
 
 def addCond(totalSql, count, pankou, linchangpankou, conds, constr, colName, colVal,database):
     rArr = [[' AND zhubifen>kebifen ', '胜'], [' AND zhubifen=kebifen ', '平'], [' AND zhubifen<kebifen ', '负'],
-            [' AND (zhubifen-kebifen-linchangpankou)*linchangpankou>0 ', '上盘'], [' AND (zhubifen-kebifen-linchangpankou)*linchangpankou<0 ', '下盘']]
+            [' AND (zhubifen-kebifen-pankou)*pankou>0 ', '上盘'], [' AND (zhubifen-kebifen-pankou)*pankou<0 ', '下盘']]
     for index in range(len(rArr)):
         i = rArr[index]
         pCount = printResult(totalSql, i[0], database)
@@ -144,5 +144,5 @@ if __name__ == '__main__':
         wrap3CorrectValueRules(database, n, 4)
     for i in colArrs:
         wrap3CorrectValueRules(database, i)
-    # for j in arrType2:
-    #     wrap1CorrectValueRules(database, j)
+    for j in arrType2:
+        wrap1CorrectValueRules(database, j)

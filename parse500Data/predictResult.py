@@ -140,10 +140,11 @@ def getMaxMins(database,pankou,linchangpankou,bisaileixing,bisaishijian,zhudui,k
     print('组合总共的个数:%s'%(combinNum))
 
     maxmins = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-    maxPreNum = 5000 #最大预测条数
-    curNum = 0
+    maxPreNum = 4096 #最大预测条数
+
     #分为5类
     for h in range(len(combinArr)):
+        curNum = 0
         cSqlArr= combinArr[h]
         for cArr in cSqlArr:
             if curNum>maxPreNum:
