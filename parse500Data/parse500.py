@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 import database as DB
 import datetime
+import traceback
 from changeUtils import changeleixing, changeTeamName, dealPankou, gzipData, deflate, checkContain
 
 requests.adapters.DEFAULT_RETRIES = 5
@@ -112,15 +113,15 @@ def updateBifen(bisaiDate,leixings,matchs,database):
     print(str(bisaiDate[0]))
     map = parseData(str(bisaiDate[0]), leixings)
     afterDay = (bisaiDate[0]+datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    # if datetime.datetime.now().strftime("%Y-%m-%d") != afterDay:
-    map2 = parseData(afterDay, leixings)
+    if datetime.datetime.now().strftime("%Y-%m-%d") != afterDay:
+        map2 = parseData(afterDay, leixings)
 
-    for leixing in map2:
-        arr = map2[leixing]
-        if leixing in map:
-            map[leixing] = map[leixing]+arr
-        else:
-            map[leixing] = arr
+        for leixing in map2:
+            arr = map2[leixing]
+            if leixing in map:
+                map[leixing] = map[leixing]+arr
+            else:
+                map[leixing] = arr
 
     updateDatas = []
 
@@ -158,7 +159,7 @@ def updateTask(database):
 
             updateBifen(bisaiDate,lxs,teams,database)
         except Exception as e:
-            print(e)
+            traceback.print_exc()
 
 
 

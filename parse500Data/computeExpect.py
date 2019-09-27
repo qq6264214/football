@@ -8,7 +8,7 @@ pCount = 0
 def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
     ouPeiList = DB.queryOupei(database)
     peilvMap = {}
-    sxpeilv = 0.85
+    sxpeilv = 0.8
 
     for i in ouPeiList:
         i =  list(i)
@@ -86,8 +86,8 @@ def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
         # j[0] = -1
         # j[1] = -1
         # j[2] = -1
-        j[3]=-1
-        j[4]=-1
+        # j[3]=-1
+        # j[4]=-1
         maxIndex = j.index(max(j))
         maxVal = j[maxIndex]
         if maxVal<0.75:
@@ -146,10 +146,22 @@ def checkIsConflict(conflictVal,smax,pmax,fmax,shmax,xmax,pankou):
 if __name__ == '__main__':
     database = DB.Database('localhost', 'root', 'root', 'sports')
     expect= 0
-    for i in range(1,25):
+    money=300
+    num = 30
+    pm = money/num
+    maxMoney = money
+    print(("初始资金:%s")%(money))
+    for i in range(1,27):
         i=i if i>9 else '0'+str(i)
         d = '2019-09-%s'%(i)
-        expect+=compute(database,d,d,0.749)
+        cuExpect = compute(database,d,d,0.749)
+        money+=pm*cuExpect
+        print(("日期:%s,资金:%s") % (d,money))
+        if money>maxMoney:
+            maxMoney = money
+            pm = money/num
+
+        expect+=cuExpect
 
 
     print(("期望总和:%s")%expect)

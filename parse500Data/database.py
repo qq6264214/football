@@ -112,7 +112,7 @@ def updateAddLinchangFlag(database,result):
     database.execManyNonQuery(sql, result)
 
 def queryNotFirstAna(database):
-    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null '
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null ORDER BY real_time'
     return database.execQuery(sql)
 
 def queryColNameAndValByPankou(database,pankou,linchangpankou):
@@ -129,7 +129,8 @@ def updatePrediction(database,params):
 
 
 def queryNotLinchangAna(database):
-    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui,linchangpankou FROM forecast_data WHERE correct_analysis=0 AND pankou is not null AND linchangpankou is not null AND linchangpankou!=pankou'
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui,linchangpankou FROM forecast_data WHERE ' \
+          'correct_analysis=0 AND pankou is not null AND linchangpankou is not null AND linchangpankou!=pankou ORDER BY real_time'
     return database.execQuery(sql)
 
 def updateLinchangPrediction(database,params):
