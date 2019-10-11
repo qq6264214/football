@@ -1,6 +1,7 @@
 import database as DB
 from itertools import combinations
 from myThreadPools import MyThreadPools
+from changeUtils import point2Arr,point3Arr,point4Arr
 #列名,值
 colsMap = {}
 #sql
@@ -10,12 +11,7 @@ typesMap = {}
 
 def firstAna(database):
     tList = DB.queryNotFirstAna(database)
-    #由于需要频繁读取数据库,因此这里多线程效果不好
-    # threadPool = MyThreadPools(5)
-    # argList = []
     for t in tList:
-        # tempMap={'database':database,'pankou':t[1],'linchangpankou':t[1],'t':t,'flag':False}
-        # threadPool.submit(dealEveryMatch,tempMap)
         pankou = t[1]
         maxmins = getMaxMins(database,pankou,pankou,t[2],t[3],t[4],t[5])
         # 暂时只返回max值,min值,总盘数暂时不考虑
@@ -23,17 +19,10 @@ def firstAna(database):
             maxmins = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         maxmins.append(t[0])
         DB.updatePrediction(database,tuple(maxmins))
-        # argList.append(tempMap)
-    # threadPool.wait()
-    # threadPool.map(dealEveryMatch,argList)
-
 
 def linchangAna(database):
     tList = DB.queryNotLinchangAna(database)
-    # threadPool = MyThreadPools(5)
     for t in tList:
-        # tempMap = {'database': database, 'pankou': t[1], 'linchangpankou': t[6], 't': t, 'flag': True}
-        # threadPool.submit(dealEveryMatch, tempMap)
         pankou = t[1]
         maxmins = getMaxMins(database, pankou, t[6], t[2], t[3], t[4], t[5])
         # 暂时只返回max值,min值,总盘数暂时不考虑
@@ -41,23 +30,7 @@ def linchangAna(database):
             maxmins = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         maxmins.append(t[0])
         DB.updateLinchangPrediction(database, tuple(maxmins))
-    # threadPool.wait()
     DB.updateNotNeedLinchang(database)
-def dealEveryMatch(tmap):
-    database = tmap['database']
-    pankou = tmap['pankou']
-    linchangpankou = tmap['linchangpankou']
-    t = tmap['t']
-    maxmins = getMaxMins(database, pankou, linchangpankou, t[2], t[3], t[4], t[5])
-    # 暂时只返回max值,min值,总盘数暂时不考虑
-    if maxmins is None:
-        maxmins = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-    maxmins.append(t[0])
-    if not tmap['flag']:
-        DB.updatePrediction(database, tuple(maxmins))
-    else:
-        DB.updateLinchangPrediction(database, tuple(maxmins))
-    print('update Prediction finish')
 
 
 def wrapPankouKey(pankou,linchangpankou):
@@ -71,7 +44,7 @@ def getMaxMins(database,pankou,linchangpankou,bisaileixing,bisaishijian,zhudui,k
     conditiontMap = {}
     rTypeMap = {}
     if not colsMap.__contains__(pankouKey):
-        colArr = DB.queryColNameAndValByPankou(database, pankou, linchangpankou)
+        colArr = DB.queryColNameAndValByPankou(database, pankou, linchangpankou,2)
         for colName, colVal, conditionSql,resType in colArr:
             valArr = []
             conditionSqlArr = []
@@ -103,8 +76,14 @@ def getMaxMins(database,pankou,linchangpankou,bisaileixing,bisaishijian,zhudui,k
     sqlCols = ''
     keyarr = []
     for i in keys:
-        sqlCols = sqlCols + i + ','
-        keyarr.append(i)
+        i = i[:-1]
+        str = i+'1,'+i+'2,'+i+'3'
+
+        sqlCols = sqlCols + str + ','
+        keyarr.append(i + '1')
+        keyarr.append(i + '2')
+        keyarr.append(i + '3')
+
     sqlCols = sqlCols[0:len(sqlCols) - 1]
     sqlParam = [bisaileixing,bisaishijian,zhudui,kedui]
     pValList = DB.queryVals(database, sqlCols, sqlParam)
@@ -117,11 +96,34 @@ def getMaxMins(database,pankou,linchangpankou,bisaileixing,bisaishijian,zhudui,k
     for j in range(len(pValList)):
         colName = keyarr[j]
         val = pValList[j]
-        if val in tmap[colName]:
-            tIndex = tmap[colName].index(val)
-            conSql = conditiontMap[colName][tIndex]
-            tType = rTypeMap[colName][tIndex]
-            sqlArr[tType-1].append(conSql)
+        if colName not in tmap:
+            continue
+        relName = colName[:-1]
+        point=2
+        if relName in point3Arr:
+            point=3
+        elif relName in point4Arr:
+            point=4
+        val2=0
+        val3=0
+        if j%3==0:
+            val2=pValList[j+1]
+            val3= pValList[j+2]
+        elif j%3==1:
+            val2 = pValList[j + 1]
+            val3 = pValList[j + -1]
+        else:
+            val2 = pValList[j + -2]
+            val3 = pValList[j + -1]
+
+        for v in tmap[colName]:
+            lastVal = v - 1 / pow(10, point - 1)
+            if abs(val-val2)>=lastVal and abs(val-val2)<v and abs(val-val3)>v and abs(val2-val3)>v:
+                tIndex = tmap[colName].index(v)
+                conSql = conditiontMap[colName][tIndex]
+                tType = rTypeMap[colName][tIndex]
+                sqlArr[tType - 1].append(conSql)
+                break
 
     sqlArrLen = 0
     for tArr in sqlArr:
@@ -172,7 +174,11 @@ def queryCount(database,pankou,linchangpankou,conditionStrs,index,bisaishijian):
     for i in conditionStrs:
         constr = constr+ ' '+ i + ' '
     orginSql +=constr
-    totalCount = database.execQuery(orginSql)[0][0]
+    totalCount=0
+    try:
+        totalCount = database.execQuery(orginSql)[0][0]
+    except:
+        return None,None
     rArr = [[' AND zhubifen>kebifen ', '胜'], [' AND zhubifen=kebifen ', '平'], [' AND zhubifen<kebifen ', '负'],
             [' AND (zhubifen-kebifen-pankou)*pankou>0 ', '上盘'], [' AND (zhubifen-kebifen-pankou)*pankou<0 ', '下盘']]
     if totalCount<20:

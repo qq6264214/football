@@ -1,15 +1,17 @@
 import database as DB
 
 
+_ouPeiMap={}
+
 def wrap3CorrectValueRules(database, colName,point=2):
     # colName = 'fc'
     orginSql = 'SELECT count(1) FROM football_data WHERE 1=1 '
     pankousql = 'SELECT pankou,COUNT(1),pankou FROM football_data WHERE 1=1 and pankou is not null  %s GROUP BY pankou' \
-                ' HAVING count(1)>14 order by pankou'
+                ' HAVING count(1)>20 order by pankou'
     for i in range(3):
         conds = []
         name = colName + str(i + 1)
-        valuesql = 'SELECT ROUND(%s,%s),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,%s) HAVING count(1)>14 ORDER BY ROUND(%s,%s)' % (
+        valuesql = 'SELECT ROUND(%s,%s),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,%s) HAVING count(1)>20 ORDER BY ROUND(%s,%s)' % (
             name,point, name, name,point, name,point)
         valList = database.execQuery(valuesql)
         if valList is None or len(valList) == 0:
@@ -35,11 +37,10 @@ def wrap3CorrectValueRules(database, colName,point=2):
 def wrap1CorrectValueRules(database, colName):
     orginSql = 'SELECT count(1) FROM football_data WHERE 1=1 '
     pankousql = 'SELECT pankou,COUNT(1),pankou FROM football_data WHERE 1=1 and pankou is not null  %s GROUP BY pankou' \
-                ' HAVING count(1)>14 order by pankou'
-
+                ' HAVING count(1)>20 order by pankou'
     conds = []
     name = colName
-    valuesql = 'SELECT ROUND(%s,2),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,2) HAVING count(1)>14 ORDER BY ROUND(%s,2)' % (
+    valuesql = 'SELECT ROUND(%s,2),COUNT(1) from football_data WHERE %s is not null  GROUP BY ROUND(%s,2) HAVING count(1)>20 ORDER BY ROUND(%s,2)' % (
         name, name, name, name)
     valList = database.execQuery(valuesql)
     if valList is None or len(valList) == 0:
@@ -65,12 +66,17 @@ def addCond(totalSql, count, pankou, linchangpankou, conds, constr, colName, col
         i = rArr[index]
         pCount = printResult(totalSql, i[0], database)
         if pCount is not None:
-            if ((1 < pankou < 2 and index == 0) or (-1 > pankou > -2 and index == 2)) and pCount / count < 0.78:
+            if index < 3 and _ouPeiMap[pankou][index] * (pCount / count) < 1.5:
                 continue
-            elif ((pankou >= 2 and index == 0) or (pankou <= -2 and index == 2)) and pCount / count < 0.92:
+            elif index >= 3 and pCount / count < 0.7:
                 continue
-            elif pCount / count < 0.7:
-                continue
+
+            # if ((1 < pankou < 2 and index == 0) or (-1 > pankou > -2 and index == 2)) and pCount / count < 0.78:
+            #     continue
+            # elif ((pankou >= 2 and index == 0) or (pankou <= -2 and index == 2)) and pCount / count < 0.92:
+            #     continue
+            # elif pCount / count < 0.7:
+            #     continue
             print(('列名:%s,值:%s,盘口:%s,临场盘口:%s,类型:%s,总场次:%s,命中场次:%s,比例:%s')
                   % (colName, colVal, pankou, linchangpankou,i[1],count,pCount,round(pCount / count, 3)))
             conTemp = [pankou, linchangpankou, constr.strip(), index + 1, count, pCount, round(pCount / count, 3),
@@ -135,6 +141,11 @@ if __name__ == '__main__':
     arrType2 = ['shengfuqushicha', 'zonghepingjia2', 'weizhi']
 
     colArrs = arr1 + arr2 + arr3
+
+    ouPeiList = DB.queryOupei(database)
+    global _ouPeiMap
+    for i in ouPeiList:
+        _ouPeiMap[i[0]] = [i[1], i[2], i[3]]
 
     for k in point2Arr:
         wrap3CorrectValueRules(database, k, 2)

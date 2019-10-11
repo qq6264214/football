@@ -422,40 +422,6 @@ def checkContain(chars,str):
             return False
     return True
 
-arr1 = {"peilv","peilvbianhua","qushipianlizhi","shengfuqushicha","zonghefengxianzhishu","zucaizhishu",
-            "lengrezhishu","peilvqiwang","peilvqujian","zhibiao","zhibiaoqujianbi","kailifangchabi","lisanzhicha","peifuzhishu",
-            "peifuzhishuxin","bocaiyinglizhishu","chuxuanzhishu","xuandanzhishu","peilvlisanzhi1","peilvlisanzhi2","lisanzhibianhualv",
-            "dingdanzhishu","baolengzhishu","kailizhishuchu","kailizhishuji","kailibianhualv","kaipeicha","pianlizhi","zhongzhipianlizhi","pianlilv",
-            "zonghepianlizhi","fangcha","peilvfanhuanchaqujian","peilvfanhuancha","zonghepingjia1","zonghepingjia2","zonghepingjia3"}
-
-arr2 = {"peilvzhongzhi","pingjunpeilv","pingjunpeilvcha","shenglvzhongzhi","pingjunshenglv","pingjunshenglvcha","kailizhishuzhongzhi",
-            "kailizhishu","baolengzhishuxin","peilvqiwangjunzhi","lisanzhi","kaipeifangchahe","kaipeichagaodicha",
-            "youshizhishu1","youshizhishu2","youshizhishu3","youshizhishu4","youshizhishu5","youhuayoushi","zhongjiyoushi","youshicha",
-            "","shaixuanbi","shaixuancha","zhongjishaixuan","","fa","fb","chupeizuigaopeilv","jishizuigaopeilv","zuigaopeilvbianhua",
-            "chupeizuidipeilv","jishizuidipeilv","zuidipeilvbianhua","chupeipingjunpeilv","jishipingjunpeilv","pingjunpeilvbianhua",
-            "chupeizuigaoshenglv","jishizuigaoshenglv","zuigaoshenglvbianhua","chupeizuidishenglv","jishizuidishenglv","zuidishenglvbianhua",
-            "chupeipingjunshenglv","jishipingjunshenglv","pingjunshenglvbianhua","yinglizhishu","fengxianzhishu","youshichayoubian",
-            "weizhi","shaixuanbiyoubian","shaixuanchayoubian","zhongjishaixuanyoubian","","","zonghefangchabi"}
-
-arr3 = {"lisanzhichu","lisanzhiji","lisanzhichachu","lisanzhichaji","","lisanzhishu","lisanbi","bianyilisanzhishu",
-            "bianyilisanzhishuxia","qujianqiwangchaquan","qujianqiwangchazhu","fc","fd","qiwangfengxianbi","zonghezhishu",
-            "peilvfangchahe","zonghefengxianbi","kailizhishucha","","","pellvqujianchu","peilvqujianji","peilvqujianbi",
-            "","","","","peifuzhishutiaozhengxia1","peifuzhishutiaozhengxia2","peifuzhishutiaozhengxia3",
-            "peifuzhishutiaozhengxia4","peifuzhishutiaozhengxia5","peifuzhishutiaozhengxia6","qiwangfangchabi",
-            "junhengzhishu","lisanzhichuyoubian","lisanzhijiyoubian","lisanzhichachuyoubian","lisanzhichajiyoubian",
-            "lisanzhibianhualvyoubian","lisanzhishuyoubian","lisanbiyoubian","bianyilisanzhishuyoubian",
-            "bianyilisanzhishuxiayoubian","qujianqiwangchaquanyoubian","qujianqiwangchazhuyoubian","fcyoubian",
-            "fdyoubian","qiwangfengxianbiyoubian","zonghezhishuyoubian","peilvfangchaheyoubian","zonghefengxianbiyoubian",
-            "kailizhishuchayoubian","baolengzhishuyoubian","zhibiao1youbian","peilvqujianchuyoubian","peilvqujianjiyoubian",
-            "peilvqujianbiyoubian","fengxianzhishuyoubian","zonghefengxianzhishuyoubian","peifuzhishuyoubian",
-            "peifuzhishutiaozhengyoubian","peifuzhishutiaozhengxia1youbian","peifuzhishutiaozhengxia2youbian",
-            "peifuzhishutiaozhengxia3youbian","peifuzhishutiaozhengxia4youbian","peifuzhishutiaozhengxia5youbian",
-            "peifuzhishutiaozhengxia6youbian","qiwangfangchabiyoubian","junhengzhishuyoubian"}
-
-
-
-
-
 point2Arr = ["peilv", "peilvlisanzhi1", "peilvlisanzhi2", "peilvzhongzhi", "pingjunpeilv", "pingjunpeilvcha",
                  "chupeizuigaopeilv", "jishizuigaopeilv", "chupeizuidipeilv", "jishizuidipeilv", "chupeipingjunpeilv",
                  "jishipingjunpeilv", "bianyilisanzhishuxia", "qushipianlizhi", "zonghefengxianzhishu", "peilvqiwang",

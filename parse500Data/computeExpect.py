@@ -5,7 +5,7 @@ tCount =0
 pCount = 0
 
 
-def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
+def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75,qwyuzhi=1.5):
     ouPeiList = DB.queryOupei(database)
     peilvMap = {}
     sxpeilv = 0.8
@@ -33,7 +33,19 @@ def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
         # j[0] = -1
         # j[1] = -1
         # j[2] = -1
-        maxIndex = j.index(max(j))
+        j[3] = -1
+        j[4] = -1
+
+        eArr = []
+        for ix in range(len(j)):
+            if j[ix] == -1 or ix >= 3:
+                eArr.append(-1)
+            elif ix < 3:
+                eArr.append(j[ix] * peilvMap[lpk][ix])
+        maxIndex = eArr.index(max(eArr))
+        maxVal = eArr[maxIndex]
+        if maxVal < qwyuzhi:
+            continue
 
         if maxIndex in [0,1,2] :
             if (peilvMap[lpk][maxIndex])*j[maxIndex]<=1.02:
@@ -86,21 +98,28 @@ def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75):
         # j[0] = -1
         # j[1] = -1
         # j[2] = -1
-        # j[3]=-1
-        # j[4]=-1
-        maxIndex = j.index(max(j))
-        maxVal = j[maxIndex]
-        if maxVal<0.75:
+        j[3]=-1
+        j[4]=-1
+
+        eArr = []
+        for ix in range(len(j)):
+            if j[ix]==-1 or ix>=3:
+                eArr.append(-1)
+            elif ix<3:
+                eArr.append(j[ix]*peilvMap[lpk][ix])
+        maxIndex = eArr.index(max(eArr))
+        maxVal = eArr[maxIndex]
+        if maxVal<qwyuzhi:
             continue
         # qwArr = [j[0] * peilvMap[lpk][0], j[1] * peilvMap[lpk][1], j[2] * peilvMap[lpk][2], (sxpeilv + 1) * j[3],
         #          (sxpeilv + 1) * j[4]]
         # maxIndex = qwArr.index(max(qwArr))
         if maxIndex in [0,1,2] :
 
-            if (peilvMap[lpk][maxIndex])*j[maxIndex]<=1.02:
-                continue
-            elif(maxIndex == 0 and lpk>1.5) or (maxIndex==2 and lpk<-1.5):
-                continue
+            # if (peilvMap[lpk][maxIndex])*j[maxIndex]<=1.02:
+            #     continue
+            # elif(maxIndex == 0 and lpk>1.5) or (maxIndex==2 and lpk<-1.5):
+            #     continue
             if (maxIndex == 0 and zbf>kbf) or (maxIndex == 1 and zbf==kbf) or (maxIndex == 2 and zbf<kbf):
                 expect += peilvMap[lpk][maxIndex]-1
             else:
@@ -151,10 +170,10 @@ if __name__ == '__main__':
     pm = money/num
     maxMoney = money
     print(("初始资金:%s")%(money))
-    for i in range(1,27):
+    for i in range(1,2):
         i=i if i>9 else '0'+str(i)
         d = '2019-09-%s'%(i)
-        cuExpect = compute(database,d,d,0.749)
+        cuExpect = compute(database,d,d,0.6,1.5)
         money+=pm*cuExpect
         print(("日期:%s,资金:%s") % (d,money))
         if money>maxMoney:
@@ -166,4 +185,4 @@ if __name__ == '__main__':
 
     print(("期望总和:%s")%expect)
     print(('预测总盘数:%s,预测命中总盘数:%s,比例:%s') % (
-     tCount, pCount, round(pCount / tCount, 3) if tCount > 0 else 0))
+    tCount, pCount, round(pCount / tCount, 3) if tCount > 0 else 0))

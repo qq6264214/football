@@ -80,10 +80,11 @@ def queryCount(database,sql):
     list = database.execQuery(sql)
 
     return list[0][0]
+#type  : 1表示单一值,2表示和下一个的差值小于改值,另外两个大于改值
 
 def insertCondition(database,condition):
     sql = 'INSERT IGNORE INTO `condition` (`pankou`,`linchangpankou`, `condition`,`type`, `total_count`, `count`,' \
-          '`percent`,`model`,`col_name`,`col_val`) VALUES (%s,%s,%s,%s,%s,%s,%s,1,%s,%s)'
+          '`percent`,`model`,`col_name`,`col_val`) VALUES (%s,%s,%s,%s,%s,%s,%s,2,%s,%s)'
     if condition == None or len(condition) == 0:
         return
 
@@ -115,9 +116,9 @@ def queryNotFirstAna(database):
     sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null ORDER BY real_time'
     return database.execQuery(sql)
 
-def queryColNameAndValByPankou(database,pankou,linchangpankou):
-    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=1 GROUP BY col_name,col_val,`condition`,`type` ORDER BY col_name,col_val,`condition`,`type`'
-    return database.execQuery(sql,(pankou,linchangpankou))
+def queryColNameAndValByPankou(database,pankou,linchangpankou,model=1):
+    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=%s GROUP BY col_name,col_val,`condition`,`type` ORDER BY col_name,col_val,`condition`,`type`'
+    return database.execQuery(sql,(pankou,linchangpankou,model))
 
 def queryVals(database,sqlCols,result):
     sql = 'SELECT ' + sqlCols +' FROM football_data WHERE bisaileixing=%s AND bisaishijian=%s  AND zhudui=%s AND kedui=%s'
