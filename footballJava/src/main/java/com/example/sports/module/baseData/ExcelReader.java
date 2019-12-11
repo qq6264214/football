@@ -14,10 +14,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ExcelReader {
@@ -141,6 +138,10 @@ public class ExcelReader {
                 fData.setPankou(getPankouValue(sheetAt.getRow(k*103+41+offset2).getCell(0+7*p)));
                 setArr1Value(fData,k,p,sheetAt,m);
                 setArr2Value(fData,k,p,sheetAt,m);
+                fData.setChubupaichu(sheetAt.getRow(k*103+68+offset2).getCell(1+7*p).toString().replace(" ",""));
+                fData.setPanduanleng(sheetAt.getRow(k*103+68+offset2).getCell(3+7*p).toString().replace(" ",""));
+                fData.setZuizhongpaichu(sheetAt.getRow(k*103+68+offset2).getCell(5+7*p).toString().replace(" ",""));
+
                 if(type == 1){
                     list.add(fData);
                 }else if(type==2){
@@ -278,6 +279,94 @@ public class ExcelReader {
         }
     }
 
+    public void updateExtraData(XSSFSheet sheetAt,String yearStr){
+        String timeStr = yearStr.substring(0,4+(4-sheetAt.getSheetName().length())) + sheetAt.getSheetName();
+        SimpleDateFormat sDateFormat=new SimpleDateFormat("yyyyMMdd"); //加上时间
+        //必须捕获异常
+        Date date = new Date();
+        try {
+            date=sDateFormat.parse(timeStr);
+        } catch(ParseException px) {
+            px.printStackTrace();
+        }
+        List<FootballAddData> list = footballrep.findByBisaishijianAndChubupaichuIsNullOrderById( new java.sql.Date(date.getTime()));
+        if(null == list || list.isEmpty()){
+            return;
+        }
+
+        Integer rowNums = sheetAt.getLastRowNum()+2;
+        Integer maxbisaiPerhang =  sheetAt.getRow(0).getLastCellNum()/7*2;
+        Integer comNum = (rowNums/103-1)* maxbisaiPerhang
+                + sheetAt.getRow(sheetAt.getLastRowNum()-1).getLastCellNum()/7*2;
+        int k=0;
+        int p=0;
+        List<FootballAddData> updateList = new ArrayList();
+        for(int m= 0;m<comNum;m++){
+            try{
+                Integer offset1 = m%2==0?0:3;
+                Integer offset2 = m%2==0?0:31;
+                String zhudui = sheetAt.getRow(k*103).getCell(offset1+1+7*p).getStringCellValue().replace(" ","");
+//                fData.setBisaileixing(sheetAt.getRow(k*103+1).getCell(offset1+1+7*p).toString());
+                String kedui = "";
+                if(zhudui.indexOf(":")>-1){
+                    kedui = zhudui.split(":")[1];
+                    zhudui = zhudui.split(":")[0];
+                }else{
+                    kedui = sheetAt.getRow(k*103).getCell(offset1+3+7*p).getStringCellValue().replace(" ","");
+                }
+                String changci = sheetAt.getRow(k*103+2).getCell(offset1+1+7*p).toString();
+                Double pankou = getPankouValue(sheetAt.getRow(k*103+41+offset2).getCell(0+7*p));
+                Iterator<FootballAddData> iterator = list.iterator();
+                while (iterator.hasNext()) {
+                    FootballAddData fData = iterator.next();
+                    if (zhudui.equals(fData.getZhudui())&& kedui.equals(fData.getKedui())
+                            && changci.equals(fData.getChangci())&& pankou.equals(fData.getPankou())) {
+                        fData.setChubupaichu(sheetAt.getRow(k*103+68+offset2).getCell(1+7*p).toString().replace(" ",""));
+                        fData.setPanduanleng(sheetAt.getRow(k*103+68+offset2).getCell(3+7*p).toString().replace(" ",""));
+                        fData.setZuizhongpaichu(sheetAt.getRow(k*103+68+offset2).getCell(5+7*p).toString().replace(" ",""));
+                        updateList.add(fData);
+                        iterator.remove();//使用迭代器的删除方法删除
+                        break;
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("p::"+p+",k:::"+k);
+            }finally {
+                if(m%2==1){
+                    if(p<sheetAt.getRow(k*103).getLastCellNum()/7-1){
+                        p++;
+                    }else{
+                        p=0;
+                        k++;
+                    }
+                }
+            }
+
+        }
+        footballrep.saveAll(updateList);
+    }
+
+    public void anaExtraData(){
+        File dirs = new File("C:\\Users\\Administrator\\Desktop\\zq\\files");
+        if(!dirs.exists()){
+            return;
+        }
+        File[] files = dirs.listFiles();
+        for(File tFile : files){
+            try{
+                InputStream inputStream = new FileInputStream(tFile.getAbsolutePath());
+                XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                String yearStr = tFile.getName().substring(tFile.getName().lastIndexOf("\\")+1,tFile.getName().lastIndexOf("."));
+                for(int j=0;j<workbook.getNumberOfSheets();j++){
+                    XSSFSheet sheetAt = workbook.getSheetAt(j);
+                    updateExtraData(sheetAt,yearStr);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 

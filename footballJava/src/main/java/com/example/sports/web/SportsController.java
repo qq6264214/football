@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,14 @@ public class SportsController {
         return new ReplyInfo(true,null);
     }
 
+    @GetMapping("/anaExtraData")
+    public ReplyInfo anaExtraData( HttpServletRequest req){
+
+        excelReader.anaExtraData();
+
+        return new ReplyInfo(true,null);
+    }
+
     @PostMapping(value = "/file/upload1Data")
     String upload1DataFile(@RequestParam("file")MultipartFile file,HttpServletRequest req) {
 
@@ -107,8 +116,12 @@ public class SportsController {
         Date endTime = new Date(Long.valueOf(req.getParameter("endTime")));
         Double value = Double.valueOf(req.getParameter("value"));
         List list = forecastDataService.list(startDate,endDate,startTime,endTime,value);
+        Map pvMap = forecastDataService.getPeilv();
+        Map map = new HashMap();
+        map.put("list",list);
+        map.put("pvMap",pvMap);
 
-        return new ReplyInfo(true,list);
+        return new ReplyInfo(true,map);
     }
     @GetMapping(value = "/forecast/needAnaNum")
     public ReplyInfo needAnaNum( HttpServletRequest req){

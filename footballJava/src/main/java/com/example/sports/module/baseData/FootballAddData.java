@@ -788,10 +788,33 @@ public class FootballAddData implements Serializable {
     private Double junhengzhishuyoubian2;
     private Double junhengzhishuyoubian3;
 
+    private String chubupaichu;
+    private String panduanleng;
+    private String zuizhongpaichu;
 
+    public String getChubupaichu() {
+        return chubupaichu;
+    }
 
+    public void setChubupaichu( String chubupaichu ) {
+        this.chubupaichu = chubupaichu;
+    }
 
+    public String getPanduanleng() {
+        return panduanleng;
+    }
 
+    public void setPanduanleng( String panduanleng ) {
+        this.panduanleng = panduanleng;
+    }
+
+    public String getZuizhongpaichu() {
+        return zuizhongpaichu;
+    }
+
+    public void setZuizhongpaichu( String zuizhongpaichu ) {
+        this.zuizhongpaichu = zuizhongpaichu;
+    }
 
     public Integer getId() {
         return id;

@@ -13,4 +13,6 @@ public interface Footballrep extends JpaRepository<FootballAddData,Serializable>
     FootballAddData findFirstByBisaishijianAfterAndBisaishijianBeforeOrderByBisaishijianDesc( Date start,Date end );
 
     List<FootballAddData> findByBisaishijianAndFc1IsNullOrderById(Date date);
+
+    List<FootballAddData> findByBisaishijianAndChubupaichuIsNullOrderById(Date date);
 }
