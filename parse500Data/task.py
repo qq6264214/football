@@ -1,8 +1,8 @@
 import schedule
 import time
 import database as DB
-from predictResult import firstAna,linchangAna
 from updateForecastData import updateMatchRealTime,updateMacthLinchang
+from predictByPandas import predict
 import traceback
 class Task():
     def __init__(self):
@@ -20,7 +20,7 @@ class Task():
         except Exception as e:
             traceback.print_exc()
         try:
-            firstAna(self.database)
+            predict(self.database)
             print('firstAna success')
         except Exception as e:
             traceback.print_exc()

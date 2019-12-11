@@ -15,7 +15,6 @@ class Database():
             raise(NameError,"连接数据库失败")
         else:
             return cur
-
     def execQuery(self,sql,args=None):
         cur = self.__GetConnect()
         cur.execute(sql,args)
@@ -80,11 +79,11 @@ def queryCount(database,sql):
     list = database.execQuery(sql)
 
     return list[0][0]
-#type  : 1表示单一值,2表示和下一个的差值小于改值,另外两个大于改值
+#type  : 1表示单一值,2max 3min
 
 def insertCondition(database,condition):
     sql = 'INSERT IGNORE INTO `condition` (`pankou`,`linchangpankou`, `condition`,`type`, `total_count`, `count`,' \
-          '`percent`,`model`,`col_name`,`col_val`) VALUES (%s,%s,%s,%s,%s,%s,%s,2,%s,%s)'
+          '`percent`,`model`,`col_name`,`col_val`,`com_index`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
     if condition == None or len(condition) == 0:
         return
 
@@ -113,19 +112,44 @@ def updateAddLinchangFlag(database,result):
     database.execManyNonQuery(sql, result)
 
 def queryNotFirstAna(database):
-    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 AND pankou is not null ORDER BY real_time'
+    sql = 'SELECT id,pankou,bisaileixing,bisaishijian,zhudui,kedui FROM forecast_data WHERE start_analysis=0 ' \
+          'AND pankou is not null ORDER BY bisaishijian,real_time'
     return database.execQuery(sql)
 
 def queryColNameAndValByPankou(database,pankou,linchangpankou,model=1):
-    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s AND linchangpankou=%s AND model=%s GROUP BY col_name,col_val,`condition`,`type` ORDER BY col_name,col_val,`condition`,`type`'
-    return database.execQuery(sql,(pankou,linchangpankou,model))
+    sql = 'SELECT col_name,col_val,`condition`,`type` FROM `condition` WHERE pankou=%s  AND model=%s ORDER BY total_count DESC,percent ASC'
+    return database.execQuery(sql,(pankou,model))
+
+def queryConditionByPankouAndType(database,pankou,rType,model=1,minpercent=1):
+    sql = 'SELECT col_name,col_val,`condition`,`type`,percent,total_count,`count`,com_index FROM `condition` WHERE pankou=%s AND type=%s ' \
+          'AND model=%s AND percent>%s ORDER BY percent DESC,total_count DESC '
+    return database.execQuery(sql, (pankou,rType, model,minpercent))
+
+def queryAllComIndex(database,pankou,rType,model):
+    sql = 'SELECT com_index FROM `condition` WHERE pankou=%s AND type=%s AND model=%s GROUP BY com_index ORDER BY com_index'
+    return database.execQuery(sql, (pankou, rType, model))
+#conditionSql,colName,percent,total_count,pcount
+def queryCondByPkAndComIndex(database,pankou,rType,model,comIndex):
+    sql = 'SELECT `condition`,col_name,percent,total_count,`count` FROM `condition` WHERE pankou=%s AND type=%s ' \
+          'AND model=%s AND com_index=%s ORDER BY percent DESC,total_count DESC '
+    return database.execQuery(sql, (pankou, rType, model, comIndex))
+
+
+
+def queryAvgPercent(database,pankou,rType,model=1,percent=0):
+    sql = 'SELECT SUM(count)/SUM(total_count),count(1) FROM `condition` WHERE pankou=%s AND type=%s ' \
+          'AND model=%s and percent>%s'
+    return database.execQuery(sql, (pankou, rType, model,percent))
+
 
 def queryVals(database,sqlCols,result):
     sql = 'SELECT ' + sqlCols +' FROM football_data WHERE bisaileixing=%s AND bisaishijian=%s  AND zhudui=%s AND kedui=%s'
     return database.execQuery(sql,result)
 
 def updatePrediction(database,params):
-    sql = 'UPDATE  forecast_data SET shengmax=%s,shengmin=%s,pingmax=%s,pingmin=%s,fumax=%s,fumin=%s,shangmax=%s,shangmin=%s,xiamax=%s,xiamin=%s,start_analysis=1 WHERE id=%s'
+    sql = 'UPDATE  forecast_data SET shengmax=%s,shengmin=%s,pingmax=%s,pingmin=%s,fumax=%s,fumin=%s,shangmax=%s,' \
+          'shangmin=%s,xiamax=%s,xiamin=%s,sheng_count=%s,ping_count=%s,fu_count=%s,sheng_level=%s,ping_level=%s,' \
+          'fu_level=%s,sheng_avg=%s,ping_avg=%s,fu_avg=%s,start_analysis=1 WHERE id=%s'
     database.execNonQuery(sql,params)
 
 
@@ -148,19 +172,32 @@ def updateForecastDataResult(database):
 
     database.execNonQuery(sql)
 
-def queryResult(database,bisaishijian,bisaishijianend,yuzhi):
-    sql = 'SELECT a.pankou,a.zhubifen,a.kebifen,a.shengmax,a.pingmax,a.fumax,a.shangmax,a.xiamax ' \
-          'FROM forecast_data a WHERE (a.shengmax>%s OR a.pingmax>%s OR a.fumax>%s or a.shangmax>%s or a.xiamax>%s) AND a.bisaishijian>=%s AND a.bisaishijian<=%s AND a.zhubifen is not NULL ' \
-          #'and a.linchangpankou=a.pankou'
-          #'AND a.linchangpankou is not null'
+def queryResult(database,bisaishijian,bisaishijianend,yuzhi,count_yuzhi):
 
-    return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,yuzhi,yuzhi,bisaishijian,bisaishijianend))
+    # sql = 'SELECT a.pankou,a.zhubifen,a.kebifen,a.sheng_avg,a.ping_avg,' \
+    #       'a.fu_avg,sheng_count,ping_count,fu_count,sheng_level,ping_level,fu_level  FROM forecast_data a INNER JOIN football_data b on b.bisaileixing=a.bisaileixing ' \
+    #       'AND b.bisaishijian=a.bisaishijian AND b.zhudui=a.zhudui AND b.kedui=a.kedui WHERE (a.sheng_avg>%s OR a.ping_avg>%s ' \
+    #       'OR a.fu_avg>%s) AND a.bisaishijian>=%s AND a.bisaishijian<%s AND a.zhubifen is not NULL AND start_analysis=1'
+    sql = 'SELECT pankou,zhubifen,kebifen,sheng_avg,ping_avg,fu_avg,sheng_count,ping_count,fu_count,sheng_level,' \
+          'ping_level,fu_level,bisaileixing,zhudui,kedui,zhubifen,kebifen,changci,bisaishijian  FROM forecast_data  WHERE (sheng_avg>%s OR ping_avg>%s OR fu_avg>%s) ' \
+          'AND (sheng_count>%s or ping_count>%s or fu_count>%s) AND bisaishijian>=%s AND bisaishijian<%s ' \
+          'AND zhubifen is not NULL AND start_analysis=1'
+
+    return database.execQuery(sql,(yuzhi,yuzhi,yuzhi,count_yuzhi,count_yuzhi,count_yuzhi,bisaishijian,bisaishijianend))
 
 def queryOupei(database):
-    sql = 'SELECT pankou,ROUND(AVG(peilv1),2),ROUND(AVG(peilv2),2),ROUND(AVG(peilv3),2) FROM football_data GROUP BY pankou ORDER BY pankou'
+    sql = 'SELECT pankou,ROUND(AVG(peilv1),4),ROUND(AVG(peilv2),4),ROUND(AVG(peilv3),4) FROM football_data where bisaishijian<"2019-11-03" GROUP BY pankou ORDER BY pankou'
     return database.execQuery(sql)
 def insertHistoryForeData(database,bisaishijian):
     sql = 'INSERT IGNORE INTO forecast_data (bisaileixing,changci,bisaishijian,zhudui,kedui,pankou,linchangpankou,zhubifen,kebifen) ' \
           'SELECT bisaileixing,changci,bisaishijian,zhudui,kedui,pankou,linchangpankou,zhubifen,kebifen FROM football_data WHERE bisaishijian>=%s'
 
     database.execNonQuery(sql,bisaishijian)
+
+def queryLastIndex(database):
+    sql = 'SELECT last_index FROM combinations_index  ORDER BY id DESC  LIMIT 0,1'
+    return database.execQuery(sql)
+
+def updateLastIndex(database,lastIndex):
+    sql = 'UPDATE combinations_index SET last_index =%s WHERE id=1'
+    database.execNonQuery(sql, lastIndex)
