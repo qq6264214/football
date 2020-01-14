@@ -6,7 +6,7 @@ import re
 conflictVal = 0.6
 
 
-def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75,qwyuzhi=1.5,countYuzhi=5,limitType=-1):
+def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75,qwyuzhi=1.5,countYuzhi=5,limitType=-1,futype=-1):
     ouPeiList = DB.queryOupei(database)
     peilvMap = {}
     sxpeilv = 0.8
@@ -69,6 +69,14 @@ def compute(database,bisaishijian,bisaishijianend,yuzhi=0.75,qwyuzhi=1.5,countYu
             continue
 
 
+        if limitType==2 :
+            # if lpk>0.75:
+            #     continue
+            #
+            if futype==1 and lpk<=0:
+                continue
+            elif futype ==0 and lpk>0:
+                continue
         # ctMaxIndex = levelArr.index(max(levelArr))
         # if maxIndex!=ctMaxIndex:
         #     continue
@@ -134,8 +142,8 @@ def checkIsConflict(conflictVal,smax,pmax,fmax,shmax,xmax,pankou):
 
 def comMoney():
     database = DB.Database('localhost', 'root', 'root', 'sports')
-    money = 200
-    num = 20
+    money = 300
+    num = 30
     pm = money / num
     maxMoney = money
     print(("初始资金:%s") % (money))
@@ -145,25 +153,34 @@ def comMoney():
     maxToc = 0
     maxYc = 0
     for j in range(0, 30, 100):
-        for m in range(1200, 1260, 1000):
+        for m in range(1200, 1340, 1000):
             expect = 0
             tCount = 0
             pCount = 0
-            d = datetime.datetime.strptime('2019-11-30', '%Y-%m-%d')
-            for i in range(4, 5):
+            d = datetime.datetime.strptime('2019-12-18', '%Y-%m-%d')
+            for i in range(1, 16):
                 d1 = (d + datetime.timedelta(days=i)).date()
                 d2 = (d + datetime.timedelta(days=i + 1)).date()
-                cuExpect,totalCount,yesCount,results = compute(database,d1,d2,0,1.24,22,1)
-                # cuExpect2,totalCount2,yesCount2=0,0,0
-                cuExpect2, totalCount2, yesCount2,results2 = compute(database, d1, d2, 0, 1.20, 5, 2)
-                cuExpect3, totalCount3, yesCount3, results3 = compute(database, d1, d2, 0, 1.22, 10, 0)
-                # cuExpect3, totalCount3, yesCount3 = 0, 0, 0
+                cuExpect3, totalCount3, yesCount3 = 0, 0, 0
+                cuExpect, totalCount, yesCount = 0, 0, 0
+                cuExpect21, totalCount21, yesCount21 = 0, 0, 0
+                cuExpect22, totalCount22, yesCount22 = 0, 0, 0
 
-                cuExpect += cuExpect2 +cuExpect3
-                totalCount += totalCount2 + totalCount3
-                yesCount += yesCount2 + yesCount3
+                # cuExpect3, totalCount3, yesCount3, results3 = compute(database, d1, d2, 0, 1.23, 11, 0)
 
-            # cuExpect, totalCount, yesCount, results = compute(database, '2019-10-01', '2019-12-01', 0, m / 1000, j,2)
+                cuExpect,totalCount,yesCount,results = compute(database,d1,d2,0,1.2,21,1)
+
+                # cuExpect21, totalCount21, yesCount21,results22 = compute(database, d1, d2, 0, 1.28, 7, 2,1)
+                # cuExpect22, totalCount22, yesCount22, results22 = compute(database, d1, d2, 0, 1.2, 6, 2,0)
+                cuExpect2 = cuExpect21+cuExpect22
+                totalCount2 = totalCount21+totalCount22
+                yesCount2 = yesCount21+yesCount22
+
+                cuExpect += cuExpect2+cuExpect3
+                totalCount += totalCount2+totalCount3
+                yesCount += yesCount2+yesCount3
+
+                # cuExpect, totalCount, yesCount, results = compute(database, '2019-11-03', '2019-12-18', 0, m / 1000, j,2,1)
                 money += pm * cuExpect
                 pCount += yesCount
                 tCount += totalCount
@@ -172,13 +189,12 @@ def comMoney():
                 if money>maxMoney:
                     maxMoney = money
                     pm = money/num
-                # elif money<=2/3*maxMoney:
-                #     maxMoney = money
-                #     pm = money / num
+
                 expect += cuExpect
 
-            print(('条件阈值:%s,期望阈值:%s,期望总和:%s,预测总盘数:%s,预测命中总盘数:%s,比例:%s')
-              % (j, m/1000, round(expect, 2), tCount, pCount, round(pCount / tCount, 3) if tCount > 0 else 0))
+            print(('条件阈值:%s,期望阈值:%s,期望总和:%s,预测总盘数:%s,预测命中总盘数:%s,比例:%s,场均:%s')
+              % (j, m/1000, round(expect, 2), tCount, pCount, round(pCount / tCount, 3) if tCount > 0 else 0,
+                 round(expect/tCount,2) if tCount > 0 else 0))
             if expect > maxExpect:
                 maxj = j
                 maxm = m
@@ -194,8 +210,8 @@ def getRules(database):
 
     ruleMap = {}
     for x in range(1,30,1):
-        for y in range(110,135,1):
-            cuExpect, totalCount, yesCount, results = compute(database, '2019-11-01', '2019-11-24', 0, y / 100, x)
+        for y in range(120,135,1):
+            cuExpect, totalCount, yesCount, results = compute(database, '2019-10-01', '2019-11-01', 0, y / 100, x)
             for r in results.keys():
                 pDict = {}
                 tArr = results[r]
@@ -211,7 +227,7 @@ def getRules(database):
                             rDict = {'condyz':x,'expectyz':y,'expect':tArr[i]}
                             pDict[i] = rDict
                     ruleMap[r] = pDict
-    # print(ruleMap)
+    print(ruleMap)
     texpect = 0
     for pk in ruleMap.keys():
         for rs in ruleMap[pk].keys():
@@ -291,16 +307,16 @@ def computeByRules(database,bisaishijian,bisaishijianend):
                 else:
                     expect = expect - 1
                     totalCount += 1
-                results[lpk][maxIndex] += -1
+                    results[lpk][maxIndex] += -1
                 break
 
     expect = round(expect,2)
-    print(expect)
+    print(expect,totalCount,yesCount,results)
     return expect,totalCount,yesCount,results
 
 
 if __name__ == '__main__':
     database = DB.Database('localhost', 'root', 'root', 'sports')
     # getRules(database)
-    # computeByRules(database,'2019-10-01','2019-10-28')
+    # computeByRules(database,'2019-11-01','2019-12-01')
     comMoney()

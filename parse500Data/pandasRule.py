@@ -30,9 +30,12 @@ minArr3=["zonghefengxianzhishu","zhibiao","bianyilisanzhishuxia","lisanzhichu", 
 
 validCols = ["chuxuanzhishu","xuandanzhishu","peifuzhishu",'peilvfanhuancha','zonghezhishu']
 
-oldeffectiveCols =['zonghefengxianzhishu','zhibiao','zhibiaoqujianbi','lisanzhicha','dingdanzhishu','lisanzhibianhualv',
-                'kailibianhualv','kaipeicha','baolengzhishu','youhuayoushi','zhongjiyoushi',
-                'zhongjishaixuan','fa','fb','fc','fd']
+oldeffectiveCols =['qushipianlizhi','zonghefengxianzhishu','peilvqiwangzhi','zhibiao',
+                   'lisanzhicha','bocaiyinglizhishu','dingdanzhishu','lisanzhibianhualv',
+                'kailibianhualv','baolengzhishu','youhuayoushi','pingjunpeilvbianhua','pingjunshenglvbianhua','shaixuanbi',
+                   'kailizhishu','zonghefangchabi'
+                ]
+
 oldeffectiveCols2 =['pingjunpeilvcha','pingjunshenglvcha','peilvqiwangjunzhi','kaipeichagaodicha','youshicha',
                 'fa','youshichayoubian','shaixuanbiyoubian','shaixuanchayoubian','zhongjishaixuanyoubian']
 
@@ -354,7 +357,7 @@ def run1Maxmin():
     lastIndex = DB.queryLastIndex(database)[0][0]
     # for comnum in range(13,14, 1):
     comnum=8
-    oldeffectiveCols.sort()
+    oldeffectiveCols.sort(reverse=True)
     sqlArr, colNameArr = wrapTotalConstr(oldeffectiveCols,3)
     scoms = combinations(sqlArr,comnum)
     ccoms = combinations(colNameArr,comnum)
